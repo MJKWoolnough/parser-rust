@@ -38,16 +38,16 @@ impl<T: tokeniser> parser {
     pub fn len(&mut self) -> usize {
         self.tokeniser.len()
     }
-    pub fn accept(&mut self, chars: String) -> bool {
+    pub fn accept(&mut self, chars: &str) -> bool {
         true
     }
-    pub fn accept_run(&mut self, chars: String) -> char {
+    pub fn accept_run(&mut self, chars: &str) -> char {
 
     }
-    pub fn except(&mut self, chars: String) -> bool {
+    pub fn except(&mut self, chars: &str) -> bool {
         true
     }
-    pub fn except_run(&mut self, chars: String) -> char {
+    pub fn except_run(&mut self, chars: &str) -> char {
 
     }
     pub fn done() -> token {
@@ -60,7 +60,7 @@ impl<T: tokeniser> parser {
             data: "",
         }
     }
-    pub fn error(&mut self, err: String) -> token {
+    pub fn error(&mut self, err: &str) -> token {
         self.set_state(self.error_state);
         self.err = err;
         self.error_state()
