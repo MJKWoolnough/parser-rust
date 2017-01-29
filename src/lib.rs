@@ -13,6 +13,11 @@ pub type token_fn fn(&mut parser) token;
 pub trait tokeniser {
     fn next(&mut self) -> char;
     fn backup(&mut self) -> char;
+    fn peek(&mut self) -> char {
+        let c = self.next();
+        self.backup();
+        c
+    }
     fn get(&mut self) -> String;
     fn len(&mut self) -> usize;
 }
@@ -31,9 +36,7 @@ impl<T: tokeniser> parser {
         self.state = func;
     }
     pub fn peek(&mut self) -> char {
-        let c = self.tokeniser.next();
-        self.tokeniser.backup();
-        c
+        self.tokeniser.peek()
     }
     pub fn len(&mut self) -> usize {
         self.tokeniser.len()
