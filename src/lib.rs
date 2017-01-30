@@ -30,7 +30,7 @@ struct parser<T: tokeniser> {
 
 impl<T: tokeniser> parser {
     pub fn get(&mut self) -> token {
-            self.state(self)
+        self.state(self)
     }
     pub fn set_state(&mut self, func: token_fn) {
         self.state = func;
@@ -42,16 +42,26 @@ impl<T: tokeniser> parser {
         self.tokeniser.len()
     }
     pub fn accept(&mut self, chars: &str) -> bool {
-        true
+        chars.contains(self.tokeniser.next())
     }
     pub fn accept_run(&mut self, chars: &str) -> char {
-
+        loop {
+            let c = self.tokeniser.next();
+            if !chars.contains(c) {
+                return c;
+            }
+        }
     }
     pub fn except(&mut self, chars: &str) -> bool {
-        true
+        !chars.contains(self.tokeniser.next())
     }
     pub fn except_run(&mut self, chars: &str) -> char {
-
+        loop {
+            let c = self.tokeniser.next();
+            if chars.contains(c) {
+                return c;
+            }
+        }
     }
     pub fn done() -> token {
         self.set_state(self.done_state);
