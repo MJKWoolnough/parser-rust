@@ -1,16 +1,18 @@
-pub type token_type i8;
+use std::ops;
 
-pub const token_done: token_type = -1
-pub const token_error: token_type = -2
+pub type TokenType = i8;
 
-pub struct token {
-    type: token_type,
-    data: String,
+pub const TOKEN_DONE: TokenType = -1;
+pub const TOKEN_ERROR: TokenType = -2;
+
+pub struct Token {
+    pub typ: TokenType,
+    pub data: String,
 }
 
-pub type token_fn fn(&mut parser) token;
+pub type TokenFn<T: Tokeniser> = fn(s: &mut Parser<T>) -> Token;
 
-pub trait tokeniser {
+pub trait Tokeniser {
     fn next(&mut self) -> char;
     fn backup(&mut self) -> char;
     fn peek(&mut self) -> char {
@@ -22,17 +24,24 @@ pub trait tokeniser {
     fn len(&mut self) -> usize;
 }
 
-struct parser<T: tokeniser> {
+pub struct Parser<T: Tokeniser> {
     tokeniser: T,
-    state: token_fn,
+    state: TokenFn<T>,
     err: String,
 }
 
-impl<T: tokeniser> parser {
-    pub fn get(&mut self) -> token {
-        self.state(self)
+impl<T: Tokeniser> Parser<T> {
+    pub fn new(t: T, state: TokenFn<T>) -> Parser<T> {
+        Parser {
+            tokeniser: t,
+            state: state,
+            err: String::new(),
+        }
     }
-    pub fn set_state(&mut self, func: token_fn) {
+    pub fn get(&mut self) -> Token {
+        (self.state)(self)
+    }
+    pub fn set_state(&mut self, func: TokenFn<T>) {
         self.state = func;
     }
     pub fn peek(&mut self) -> char {
@@ -63,37 +72,62 @@ impl<T: tokeniser> parser {
             }
         }
     }
-    pub fn done() -> token {
-        self.set_state(self.done_state);
-        self.done_state()
+    pub fn done(&mut self) -> Token {
+        self.set_state(done_state);
+        done_state(self)
     }
-    fn done_state() -> token {
-        token {
-            type: token_done,
-            data: "",
-        }
-    }
-    pub fn error(&mut self, err: &str) -> token {
-        self.set_state(self.error_state);
+    pub fn error(&mut self, err: String) -> Token {
         self.err = err;
-        self.error_state()
+        self.set_state(error_state);
+        error_state(self)
     }
-    fn error_state(&mut self) -> token {
-        token {
-            type: token_error,
-            data: self.err,
+}
+
+fn done_state<T: Tokeniser>(_: &mut Parser<T>) -> Token {
+    Token {
+        typ: TOKEN_DONE,
+        data: String::new(),
+    }
+}
+
+fn error_state<T: Tokeniser>(s: &mut Parser<T>) -> Token {
+    Token {
+        typ: TOKEN_ERROR,
+        data: s.err.clone(),
+    }
+}
+
+pub type PhraseType = i8;
+
+pub const PHRASE_DONE: PhraseType = -1;
+pub const PHRASE_ERROR: PhraseType = -2;
+
+pub struct Phrase {
+    pub typ: PhraseType,
+    pub data: Vec<Token>,
+}
+
+pub type PhraseFn<T: Tokeniser> = fn(&mut Phraser<T>) -> Phrase;
+
+pub struct Phraser<T: Tokeniser> {
+    parser: Parser<T>,
+    state: PhraseFn<T>,
+}
+
+impl<T: Tokeniser> Phraser<T> {
+    pub fn new(p: Parser<T>, s: PhraseFn<T>) -> Phraser<T> {
+        Phraser {
+            parser: p,
+            state: s,
         }
     }
 }
 
-pub type phrase_type i8;
+impl<T: Tokeniser> ops::Deref for Phraser<T> {
+    type Target = Parser<T>;
 
-pub const phrase_done: phrase_type = -1
-pub const phrase_error: phrase_type = -2
-
-pub type phrase_fn fn(&mut phraser) phrase;
-
-struct phraser<T: parser> {
-     parser: T,
-     state phrase_fn,
+    /// The deref function allows access to the wrapped parser.
+    fn deref(&self) -> &Parser<T> {
+        &self.parser
+    }
 }
