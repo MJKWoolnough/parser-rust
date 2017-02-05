@@ -121,6 +121,12 @@ impl<T: Tokeniser> Phraser<T> {
             state: s,
         }
     }
+    pub fn get(&mut self) -> Phrase {
+        (self.state)(self)
+    }
+    pub fn set_state(&mut self, func: PhraseFn<T>) {
+        self.state = func;
+    }
 }
 
 impl<T: Tokeniser> ops::Deref for Phraser<T> {
