@@ -112,6 +112,7 @@ pub type PhraseFn<T: Tokeniser> = fn(&mut Phraser<T>) -> Phrase;
 pub struct Phraser<T: Tokeniser> {
     parser: Parser<T>,
     state: PhraseFn<T>,
+    tokens: Vec<Token>,
 }
 
 impl<T: Tokeniser> Phraser<T> {
@@ -121,11 +122,23 @@ impl<T: Tokeniser> Phraser<T> {
             state: s,
         }
     }
+    fn next() -> Token {
+        
+    }
+    fn backup() -> Token {
+
+    }
+    fn peek() -> Token {
+
+    }
     pub fn get(&mut self) -> Phrase {
         (self.state)(self)
     }
     pub fn set_state(&mut self, func: PhraseFn<T>) {
         self.state = func;
+    }
+    pub accept(tokens: &[&TokenType]) -> bool {
+        
     }
 }
 
