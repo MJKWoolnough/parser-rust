@@ -122,23 +122,34 @@ impl<T: Tokeniser> Phraser<T> {
             state: s,
         }
     }
-    fn next() -> Token {
-        
-    }
-    fn backup() -> Token {
-
-    }
-    fn peek() -> Token {
-
-    }
+    fn next() -> Token {}
+    fn backup() -> Token {}
+    fn peek() -> Token {}
     pub fn get(&mut self) -> Phrase {
         (self.state)(self)
     }
     pub fn set_state(&mut self, func: PhraseFn<T>) {
         self.state = func;
     }
-    pub accept(tokens: &[&TokenType]) -> bool {
-        
+    pub fn accept(&mut self, tokens: &[&TokenType]) -> bool {
+        let t = self.next();
+        for token in tokens {
+            if token.typ == t.typ {
+                return true;
+            }
+            return false;
+        }
+    }
+    pub fn accept_run(&mut self, token: &[&TokenType]) -> TokenType {
+        'tokens': loop {
+            let t = self.next();
+            for token in tokens {
+                if token.typ == t.typ {
+                    continue 'tokens';
+                }
+                return t.typ;
+            }
+        }
     }
 }
 
