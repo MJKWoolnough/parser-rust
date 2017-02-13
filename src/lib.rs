@@ -151,6 +151,25 @@ impl<T: Tokeniser> Phraser<T> {
             }
         }
     }
+    pub fn except(&mut self, tokens: &[&TokenType]) -> bool {
+        let t = self.next();
+        for token in tokens {
+            if token.typ == t.typ {
+                return false;
+            }
+            return true;
+        }
+    }
+    pub fn except_run(&mut self, token: &[&TokenType]) -> TokenType {
+        loop {
+            let t = self.next();
+            for token in tokens {
+                if token.typ == t.typ {
+                    return t.typ;
+                }
+            }
+        }
+    }
 }
 
 impl<T: Tokeniser> ops::Deref for Phraser<T> {
