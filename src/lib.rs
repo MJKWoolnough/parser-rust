@@ -122,9 +122,13 @@ impl<T: Tokeniser> Phraser<T> {
             state: s,
         }
     }
-    fn next() -> Token {}
-    fn backup() -> Token {}
-    fn peek() -> Token {}
+    fn next(&mut self) -> Token {}
+    fn backup(&mut self) {}
+    fn peek(&mut self) -> Token {
+        let t = self.next();
+        self.backup();
+        t
+    }
     pub fn get(&mut self) -> Phrase {
         (self.state)(self)
     }
